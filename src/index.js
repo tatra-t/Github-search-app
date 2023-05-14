@@ -6,8 +6,8 @@ const searchUserInput = document.querySelector(".searchUser");
 const profile = document.querySelector(".profile");
 
 class API {
-  clientId = "d47e2757ad5d0ec99ea3";
-  clientSecret = "86eb5170fbf817ea56b4c5b9801a5db9f1d8b366";
+  clientId = "aa5ad311b262cc778772";
+  clientSecret = "a11c85334b90681cdd0a41783f5f449d3d681885";
 
   async getUser(userName) {
     const response = await fetch(`https://api.github.com/users/${userName}`, {
