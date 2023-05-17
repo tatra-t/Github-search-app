@@ -4,7 +4,7 @@
 const container = document.querySelector(".searchContainer");
 const searchUserInput = document.querySelector(".searchUser");
 const profile = document.querySelector(".profile");
-
+const repository = document.querySelector(".repos");
 class API {
   clientId = "aa5ad311b262cc778772";
   clientSecret = "a11c85334b90681cdd0a41783f5f449d3d681885";
@@ -96,14 +96,29 @@ const handleInput = async (event) => {
     const user = await api.getUser(userText);
     // ui.clearAlert();
 
-    // fetch(`https://api.github.com/users/${userText}/repos?per_page=5`, {
-    //   method: "GET",
-    //   headers: {
-    //     Authorization: `Basic ${btoa(this.clientId + ":" + this.clientSecret)}`,
-    //   },
-    // });
+    const repo = fetch(`https://api.github.com/users/${userText}/repos?sort=created&per_page=5`, {
+       method: "GET",
+       headers: {
+         Authorization: `Basic ${btoa(this.clientId + ":" + this.clientSecret)}`,
+       },
+    });
+    const repos = (await repo).json();
+    
+    repos.then((result)=> {
+      console.log(result);
+      repository.innerHTML="";
+      result.forEach((resultObj, index)=>{
+        let newLine = document.createElement("li");
+        newLine.innerHTML = `<a href="${resultObj.html_url}">${resultObj.name}</a> `;
+        repository.prepend(newLine);
+        console.log(index);
+    })
+    
+    
+    })
 
     ui.showProfile(user);
+  
   } catch (error) {
     ui.showAlert(error.message, "alert-danger");
     ui.clearProfile();
