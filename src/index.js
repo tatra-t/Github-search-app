@@ -4,7 +4,6 @@
 const container = document.querySelector(".searchContainer");
 const searchUserInput = document.querySelector(".searchUser");
 const profile = document.querySelector(".profile");
-const repository = document.querySelector(".repos");
 class API {
   clientId = "aa5ad311b262cc778772";
   clientSecret = "a11c85334b90681cdd0a41783f5f449d3d681885";
@@ -24,10 +23,27 @@ class API {
 
     return data;
   }
+
+  async getRepo(userText) {
+  const repo = await fetch(`https://api.github.com/users/${userText}/repos?sort=created&per_page=5`, {
+       method: "GET",
+       headers: {
+         Authorization: `Basic ${btoa(this.clientId + ":" + this.clientSecret)}`,
+       },
+    });
+    const repos = await repo.json();
+    return repos;
+
+    
+  }
 }
 
 class UI {
-  showProfile(user) {
+  showProfile(user, userRepo) {
+    console.log(userRepo.length);
+    if (userRepo.length<5){
+
+    
     profile.innerHTML = `
     <div class="card card-body mb-3">
         <div class="row">
@@ -51,8 +67,46 @@ class UI {
         </div>
       </div>
       <h3 class="page-heading mb-3">Latest Repos</h3>
-      <div class="repos"></div>
+      <div class="repos">
+        <p> He doesn't 5 repo</p>
+      </div>
     `;
+  } else {
+    
+    profile.innerHTML = `
+    <div class="card card-body mb-3">
+        <div class="row">
+          <div class="col-md-3">
+            <img class="img-fluid mb-2" src="${user.avatar_url}">
+            <a href="${user.html_url}" target="_blank" class="btn btn-primary btn-block mb-4">View Profile</a>
+          </div>
+          <div class="col-md-9">
+            <span class="badge badge-primary">Public Repos: ${user.public_repos}</span>
+            <span class="badge badge-secondary">Public Gists: ${user.public_gists}</span>
+            <span class="badge badge-success">Followers: ${user.followers}</span>
+            <span class="badge badge-info">Following: ${user.following}</span>
+            <br><br>
+            <ul class="list-group">
+              <li class="list-group-item">Company: ${user.company}</li>
+              <li class="list-group-item">Website/Blog: ${user.blog}</li>
+              <li class="list-group-item">Location: ${user.location}</li>
+              <li class="list-group-item">Member Since: ${user.created_at}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <h3 class="page-heading mb-3">Latest Repos</h3>
+      <div class="repos">  
+        <ul class="repo-group">
+          <li class="repo-group-item"><a href="${userRepo[0].html_url}"> ${userRepo[0].name}</a></li>
+          <li class="repo-group-item"><a href="${userRepo[1].html_url}"> ${userRepo[1].name}</a></li>
+          <li class="repo-group-item"><a href="${userRepo[2].html_url}"> ${userRepo[2].name}</a></li>
+          <li class="repo-group-item"><a href="${userRepo[3].html_url}"> ${userRepo[3].name}</a></li>
+          <li class="repo-group-item"><a href="${userRepo[4].html_url}"> ${userRepo[4].name}</a></li>
+        </ul>
+      </div>
+    `;
+  }
   }
 
   clearProfile() {
@@ -94,30 +148,9 @@ const handleInput = async (event) => {
   try {
     const api = new API();
     const user = await api.getUser(userText);
+    const repoUser = await api.getRepo(userText);
     // ui.clearAlert();
-
-    const repo = fetch(`https://api.github.com/users/${userText}/repos?sort=created&per_page=5`, {
-       method: "GET",
-       headers: {
-         Authorization: `Basic ${btoa(this.clientId + ":" + this.clientSecret)}`,
-       },
-    });
-    const repos = (await repo).json();
-    
-    repos.then((result)=> {
-      console.log(result);
-      repository.innerHTML="";
-      result.forEach((resultObj, index)=>{
-        let newLine = document.createElement("li");
-        newLine.innerHTML = `<a href="${resultObj.html_url}">${resultObj.name}</a> `;
-        repository.prepend(newLine);
-        console.log(index);
-    })
-    
-    
-    })
-
-    ui.showProfile(user);
+    ui.showProfile(user, repoUser);
   
   } catch (error) {
     ui.showAlert(error.message, "alert-danger");
